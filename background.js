@@ -1,7 +1,8 @@
 import { GoogleGenerativeAI } from './lib/generative-ai.js';
+import { API_KEY } from './config.js';
 
-const API_KEY = 'AIzaSyBMzDP7h-X7Tmo-EyKtqtqZJ9MUEtjf5kc'; // Replace with your actual API key
-const genAI = new GoogleGenerativeAI(API_KEY);
+
+const genAI = new GoogleGenerativeAI(API_KEY); // Replace with your actual API key
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
