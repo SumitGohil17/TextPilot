@@ -1,26 +1,81 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>TextPilot Auto-Writing Assistant</title>
-  <link rel="stylesheet" href="popup.css">
-</head>
-<body>
-  <div class="container">
-    <h1 class="title">TextPilot</h1>
-    <textarea 
-      id="keywords" 
-      placeholder="Enter keywords..." 
-      class="textarea"
-    ></textarea>
-    <button 
-      id="generate" 
-      class="button"
-    >Generate Paragraph</button>
-    <div 
-      id="output" 
-      class="output"
-    ></div>
-  </div>
-  <script src="popup.js" type="module"></script>
-</body>
+  <head>
+    <title>TextPilot</title>
+    <style>
+      body {
+        width: 300px;
+        padding: 10px;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      textarea {
+        width: 100%;
+        height: 100px;
+      }
+      .error {
+        color: red;
+      }
+      .success {
+        color: green;
+      }
+      .status-indicator {
+        margin-top: 10px;
+        padding: 5px;
+        text-align: center;
+        background: #f0f0f0;
+        border-radius: 4px;
+      }
+
+      .result {
+        margin-top: 10px;
+        padding: 10px;
+        background: #f5f5f5;
+        border-radius: 4px;
+        white-space: pre-wrap;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .result:hover {
+        background: #e9e9e9;
+      }
+
+      .success {
+        color: #28a745;
+        margin-bottom: 5px;
+      }
+
+      #keywords {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      #keywords:focus {
+        outline: none;
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>TextPilot</h2>
+      <textarea
+        id="keywords"
+        placeholder="Enter keywords (press Tab to generate and accept text)"
+        rows="3"
+      ></textarea>
+      <button id="generate">Generate Paragraph</button>
+      <div id="output"></div>
+    </div>
+    <script src="dist/popup.bundle.js"></script>
+  </body>
 </html>

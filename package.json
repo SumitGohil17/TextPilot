@@ -1,0 +1,16 @@
+{
+  "name": "textpilot",
+  "version": "1.0.0",
+  "description": "TextPilot Auto-Writing Assistant",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --watch --config webpack.config.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.1.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

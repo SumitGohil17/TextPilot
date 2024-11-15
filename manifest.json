@@ -6,28 +6,24 @@
   "permissions": [
     "activeTab",
     "storage",
-    "scripting",
-    "https://generativelanguage.googleapis.com/"
+    "scripting"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "<all_urls>",
+    "https://generativelanguage.googleapis.com/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "dist/background.bundle.js"
   },
   "content_scripts": [{
     "matches": ["<all_urls>"],
-    "js": ["content.js"],
-    "css": ["content.css"]
+    "js": ["dist/content.bundle.js"],
+    "css": ["styles/content.css"]
   }],
   "action": {
     "default_popup": "popup.html"
   },
-  "web_accessible_resources": [{
-    "resources": ["popup.css"],
-    "matches": ["<all_urls>"]
-  }],
   "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://generativelanguage.googleapis.com"
   }
 }

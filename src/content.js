@@ -46,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Attach to existing inputs
   attachToInputs(document);
 });
-
 // Keyboard shortcuts
 const KEYS = {
   ACCEPT: ['Tab', 'ArrowRight'],
@@ -183,3 +182,4 @@ function hideLoadingIndicator() {
   const loader = document.querySelector('.textpilot-loading');
   if (loader) loader.remove();
 }
+
