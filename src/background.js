@@ -8,8 +8,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('Received message:', request);
   
   if (request.action === 'generate') {
-    console.log('Generating text for keywords:', request.keywords);
-    generateText(request.keywords)
+    console.log('Generating text for keywords:', request.keywords, 'on website:', request.website);
+    generateText(request.keywords, request.website)
       .then(paragraph => {
         console.log('Generated text:', paragraph);
         sendResponse({ paragraph });
@@ -22,8 +22,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
   
   if (request.action === 'getSuggestion') {
-    console.log('Generating suggestion for text:', request.text);
-    generateSuggestion(request.text)
+    console.log('Generating suggestion for text:', request.text, 'on website:', request.website);
+    generateSuggestion(request.text, request.website)
       .then(suggestion => {
         console.log('Generated suggestion:', suggestion);
         sendResponse({ suggestion });
@@ -36,10 +36,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-async function generateText(keywords) {
-  console.log('Generating text for keywords:', keywords);
+async function generateText(keywords, website) {
+  console.log('Generating text for keywords:', keywords, 'on website:', website);
   
-  const prompt = `Generate a paragraph based on these keywords: ${keywords}`;
+  const prompt = `suggest keywords according to "${website}" this websties textbox, based on these keywords: ${keywords} like if wesite is youtube suggest text according to youtube searchbox, if website is google docs then suggest text according to google docs canvas`;
   const result = await model.generateContent(prompt);
   
   if (!result.response) {
@@ -49,10 +49,10 @@ async function generateText(keywords) {
   return result.response.text();
 }
 
-async function generateSuggestion(text) {
-  console.log('Generating suggestion for text:', text);
+async function generateSuggestion(text, website) {
+  console.log('Generating suggestion for text:', text, 'on website:', website);
   
-  const prompt = `Continue this text naturally (1-2 lines max):
+  const prompt = `Continue this text naturally in a style appropriate for ${website} (1-2 lines max):
 Text: "${text}"
 Continuation:`;
   const result = await model.generateContent(prompt);
