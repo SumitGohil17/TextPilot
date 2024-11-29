@@ -12,22 +12,16 @@
 
 .textpilot-ghost-text {
   position: absolute;
-  color: #6e7681;
-  background: transparent;
-  padding: 0;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.6;
-  white-space: pre;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-family: inherit;
   font-size: inherit;
   user-select: none;
   animation: fadeIn 0.2s ease-in;
-  border-left: 2px solid #6e7681;
-  padding-left: 4px;
-  letter-spacing: inherit;
-  line-height: inherit;
-  text-align: inherit;
+  max-width: calc(100% - 100px);
 }
 
 .textpilot-shortcuts {
@@ -41,6 +35,7 @@
   padding: 2px 6px;
   border-radius: 4px;
   border: 1px solid #d0d7de;
+  white-space: nowrap;
 }
 
 .textpilot-loading {
@@ -49,8 +44,8 @@
   right: 20px;
   width: 20px;
   height: 20px;
-  border: 2px solid #e1e4e8;
-  border-top: 2px solid #0366d6;
+  border: 2px solid #616c7c;
+  border-top: 2px solid #466385;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   z-index: 10000;
@@ -74,4 +69,32 @@ textarea:focus, input[type="text"]:focus, [contenteditable="true"]:focus {
 .textpilot-active {
   border-color: #0366d6 !important;
   box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1) !important;
+}
+
+/* Google Docs specific styles */
+.docs-texteventtarget-iframe:focus {
+  position: relative;
+}
+
+.docs-texteventtarget-iframe.textpilot-active {
+  border-color: #0366d6 !important;
+  box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1) !important;
+}
+
+.textpilot-buffer-skeleton {
+  display: inline-block;
+  visibility: hidden;
+  height: 1em;
+  margin-right: 4px;
+}
+
+.textpilot-suggestion-text {
+  color: #6e7681;
+  opacity: 0.6;
+  padding-left: 4px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 2px solid #6e7681;
 }

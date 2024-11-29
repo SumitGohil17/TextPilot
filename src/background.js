@@ -22,10 +22,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
   
   if (request.action === 'getSuggestion') {
-    console.log('Generating suggestion for text:', request.text);
-    generateSuggestion(request.text)
+    generateSuggestion(request.text, request.url)
       .then(suggestion => {
-        console.log('Generated suggestion:', suggestion);
         sendResponse({ suggestion });
       })
       .catch(error => {
@@ -39,7 +37,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 async function generateText(keywords) {
   console.log('Generating text for keywords:', keywords);
   
-  const prompt = `Generate a paragraph based on these keywords: ${keywords}`;
+  const prompt = `Generate a paragraph based on these keywords : ${keywords}`;
   const result = await model.generateContent(prompt);
   
   if (!result.response) {
@@ -49,12 +47,10 @@ async function generateText(keywords) {
   return result.response.text();
 }
 
-async function generateSuggestion(text) {
+async function generateSuggestion(text, url) {
   console.log('Generating suggestion for text:', text);
   
-  const prompt = `Continue this text naturally (1-2 lines max):
-Text: "${text}"
-Continuation:`;
+  const prompt = `Suggest a continuation for this text from ${url}: "${text}"`;
   const result = await model.generateContent(prompt);
   
   if (!result.response) {
