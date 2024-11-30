@@ -1,7 +1,7 @@
 .textpilot-suggestion {
   position: absolute;
-  background: rgba(0, 0, 0, 0.1);
-  color: #666;
+  /* background: rgba(0, 0, 0, 0.1); */
+  color: #b8b3b3;
   padding: 2px 4px;
   border-radius: 3px;
   font-family: monospace;
@@ -14,14 +14,12 @@
   position: absolute;
   pointer-events: none;
   z-index: 9999;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-family: inherit;
-  font-size: inherit;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  max-width: 300px;
   user-select: none;
-  animation: fadeIn 0.2s ease-in;
-  max-width: calc(100% - 100px);
+  animation: fadeIn 0.15s ease-out;
+  color: #8e8e8e !important;
 }
 
 .textpilot-shortcuts {
@@ -29,7 +27,7 @@
   right: -70px;
   top: 0;
   font-size: 12px;
-  color: #6e7681;
+  color: #a5a6a7;
   opacity: 0.8;
   background: #f6f8fa;
   padding: 2px 6px;
@@ -52,8 +50,14 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 0.6; }
+  from { 
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+  to { 
+    opacity: 0.7;
+    transform: translateX(0);
+  }
 }
 
 @keyframes spin {
@@ -89,12 +93,13 @@ textarea:focus, input[type="text"]:focus, [contenteditable="true"]:focus {
 }
 
 .textpilot-suggestion-text {
-  color: #6e7681;
-  opacity: 0.6;
+  color: #8e8e8e !important;
+  opacity: 0.7;
   padding-left: 4px;
   display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
+  white-space: nowrap !important;
+  overflow: hidden !important;
   text-overflow: ellipsis;
-  border-left: 2px solid #6e7681;
+  border-left: 2px solid #8e8e8e;
+  -webkit-text-fill-color: #8e8e8e !important;
 }

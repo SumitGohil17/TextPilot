@@ -160,7 +160,13 @@ function showGhostText(element, suggestion, cursorPosition) {
 
   const ghostElement = document.createElement('div');
   ghostElement.className = 'textpilot-ghost-text';
-  
+  ghostElement.style.color = '#9E9FA5';
+  ghostElement.style.opacity = '0.6';
+  const bufferElement = document.createElement('span');
+  bufferElement.className = 'textpilot-buffer-skeleton';
+  bufferElement.textContent = element.value.substring(0, cursorPosition);
+  ghostElement.appendChild(bufferElement);
+
   const rect = element.getBoundingClientRect();
   const computedStyle = window.getComputedStyle(element);
   
@@ -197,6 +203,7 @@ function showGhostText(element, suggestion, cursorPosition) {
     const suggestionText = document.createElement('span');
     suggestionText.className = 'textpilot-suggestion-text';
     suggestionText.textContent = cleanedSuggestion;
+    suggestionText.style.color = '#8e8e8e'; // Set grey color
     ghostElement.appendChild(suggestionText);
     
     ghostText = {
@@ -240,7 +247,7 @@ async function getSuggestion(text) {
     chrome.runtime.sendMessage({ 
       action: 'getSuggestion', 
       text, 
-      url: isGoogleDocsDocument() ? 'Google Docs' : window.location.href 
+      url:  window.location.href 
     }, (response) => {
       if (chrome.runtime.lastError) {
         reject(new Error(chrome.runtime.lastError.message));
