@@ -8,6 +8,9 @@
     "storage",
     "scripting"
   ],
+  "icons":{
+    "128": "icon.png"
+  },
   "host_permissions": [
     "<all_urls>",
     "https://generativelanguage.googleapis.com/*"
