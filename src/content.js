@@ -4,6 +4,10 @@ let isLoading = false;
 let previousText = '';
 let previousCursorPosition = 0;
 
+let suggestionTimeout = null;
+let lastSuggestionTime = 0;
+const SUGGESTION_DELAY = 2000; // 2 seconds delay
+
 // Initialize observer for dynamic content
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
@@ -27,6 +31,15 @@ function attachToInputs(root) {
 // Handle input focus
 function onFocus(e) {
   activeElement = e.target;
+  // Clear any existing suggestion state
+  if (suggestionTimeout) {
+    clearTimeout(suggestionTimeout);
+  }
+  if (ghostText?.element) {
+    ghostText.element.remove();
+    ghostText = null;
+  }
+  lastSuggestionTime = 0;
   updateSuggestion();
 }
 
@@ -38,21 +51,27 @@ async function onInput(e) {
   const currentText = activeElement.value || activeElement.textContent;
   const currentCursorPosition = activeElement.selectionStart;
   
-  if (currentText.length < previousText.length && currentCursorPosition < previousCursorPosition) {
-    // User has deleted text
-    if (ghostText && ghostText.element) {
-      const deletedText = previousText.slice(currentCursorPosition, previousCursorPosition);
-      const remainingSuggestion = ghostText.suggestion.slice(deletedText.length);
-      
-      if (remainingSuggestion.length > 0) {
-        showGhostText(activeElement, remainingSuggestion, currentCursorPosition);
-      } else {
-        ghostText.element.remove();
-        ghostText = null;
+  // Clear any existing suggestion and timeout
+  if (ghostText?.element) {
+    ghostText.element.remove();
+    ghostText = null;
+  }
+  
+  if (suggestionTimeout) {
+    clearTimeout(suggestionTimeout);
+  }
+  
+  // Only set new timeout if text has changed
+  if (currentText !== previousText) {
+    // Set timeout for new suggestion
+    suggestionTimeout = setTimeout(() => {
+      const now = Date.now();
+      // Only suggest if enough time has passed since last suggestion
+      if (now - lastSuggestionTime >= SUGGESTION_DELAY) {
+        updateSuggestion();
+        lastSuggestionTime = now;
       }
-    }
-  } else {
-    updateSuggestion();
+    }, SUGGESTION_DELAY);
   }
   
   previousText = currentText;
@@ -142,6 +161,7 @@ async function updateSuggestion() {
     const suggestion = await getSuggestion(precedingText);
     if (suggestion && activeElement.selectionStart === cursorPosition) {
       showGhostText(activeElement, suggestion, cursorPosition);
+      lastSuggestionTime = Date.now(); // Update last suggestion time
     }
   } catch (error) {
     console.error('TextPilot suggestion error:', error);
@@ -152,62 +172,45 @@ async function updateSuggestion() {
 }
 
 function showGhostText(element, suggestion, cursorPosition) {
-  // Remove any existing ghost text first
   if (ghostText?.element) {
     ghostText.element.remove();
     ghostText = null;
   }
 
-  const ghostElement = document.createElement('div');
-  ghostElement.className = 'textpilot-ghost-text';
-  
-  const rect = element.getBoundingClientRect();
-  const computedStyle = window.getComputedStyle(element);
-  
-  // Get the text before cursor
+  // Get the text before cursor and last word
   const textBeforeCursor = element.value.substring(0, cursorPosition);
-  const lastLine = textBeforeCursor.split('\n').pop() || '';
+  const lastWord = textBeforeCursor.trim().split(/\s+/).pop() || '';
+
+  // Clean up suggestion and remove any overlap with existing text
+  let cleanedSuggestion = suggestion.trim();
   
-  // Clean up the suggestion
-  let cleanedSuggestion = suggestion
-    .split('\n')[0]  // Take only first line
-    .split('.')[0];  // Take only first sentence
-    
-  // Remove any part that matches the current line
-  if (cleanedSuggestion.toLowerCase().startsWith(lastLine.toLowerCase())) {
-    cleanedSuggestion = cleanedSuggestion.slice(lastLine.length);
+  // Remove the last word from suggestion if it matches
+  if (cleanedSuggestion.toLowerCase().startsWith(lastWord.toLowerCase())) {
+    cleanedSuggestion = cleanedSuggestion.slice(lastWord.length);
   }
   
-  // Ensure the suggestion starts with a space if needed
-  if (cleanedSuggestion && !lastLine.endsWith(' ') && !cleanedSuggestion.startsWith(' ')) {
+  // Get only the first word of remaining suggestion
+  cleanedSuggestion = cleanedSuggestion.trim().split(/\s+/)[0];
+
+  // Add space before suggestion if needed
+  if (!textBeforeCursor.endsWith(' ') && cleanedSuggestion) {
     cleanedSuggestion = ' ' + cleanedSuggestion;
   }
-  
-  // Truncate suggestion to fit available width
-  const context = document.createElement('canvas').getContext('2d');
-  context.font = computedStyle.font;
-  
-  const maxWidth = rect.width - context.measureText(lastLine).width - 50; // Add padding
-  while (context.measureText(cleanedSuggestion).width > maxWidth && cleanedSuggestion.length > 0) {
-    cleanedSuggestion = cleanedSuggestion.slice(0, -1);
-  }
-  
-  // Only show if we have a valid suggestion
-  if (cleanedSuggestion.trim().length > 0) {
-    const suggestionText = document.createElement('span');
-    suggestionText.className = 'textpilot-suggestion-text';
-    suggestionText.textContent = cleanedSuggestion;
-    ghostElement.appendChild(suggestionText);
+
+  // Only show if we have a meaningful suggestion
+  if (cleanedSuggestion && cleanedSuggestion.length > 1) {
+    const ghostElement = document.createElement('div');
+    ghostElement.className = 'textpilot-ghost-text';
     
-    ghostText = {
-      element: ghostElement,
-      suggestion: cleanedSuggestion
-    };
-    
-    // Calculate exact position after the last word
+    const rect = element.getBoundingClientRect();
+    const computedStyle = window.getComputedStyle(element);
+    const context = document.createElement('canvas').getContext('2d');
+    context.font = computedStyle.font;
+
+    const lastLine = textBeforeCursor.split('\n').pop() || '';
     const lastLineWidth = context.measureText(lastLine).width;
     const currentLineTop = Math.floor(cursorPosition / element.cols) * parseInt(computedStyle.lineHeight);
-    
+
     // Get cursor position coordinates
     const getCaretCoordinates = () => {
       const range = document.createRange();
@@ -233,10 +236,17 @@ function showGhostText(element, suggestion, cursorPosition) {
     // Get cursor coordinates
     const caretPos = getCaretCoordinates();
     
-    // Position ghost text at cursor position
+    // Create and style suggestion text
+    const suggestionText = document.createElement('span');
+    suggestionText.className = 'textpilot-suggestion-text';
+    suggestionText.textContent = cleanedSuggestion;
+    suggestionText.style.color = '#8e8e8e';
+    ghostElement.appendChild(suggestionText);
+
+    // Position ghost text
     ghostElement.style.position = 'fixed';
     ghostElement.style.top = `${caretPos.top}px`;
-    ghostElement.style.left = `${caretPos.left + 2}px`; // Add 2px margin
+    ghostElement.style.left = `${caretPos.left + 2}px`;
     ghostElement.style.font = computedStyle.font;
     ghostElement.style.lineHeight = computedStyle.lineHeight;
     ghostElement.style.padding = '0 4px';
@@ -245,16 +255,12 @@ function showGhostText(element, suggestion, cursorPosition) {
     ghostElement.style.borderRadius = '3px';
     ghostElement.style.whiteSpace = 'pre';
 
-    // Clean up the suggestion by removing any part that overlaps with existing text
-    const lastWord = lastLine.trim().split(' ').pop() || '';
-    if (lastWord && cleanedSuggestion.toLowerCase().startsWith(lastWord.toLowerCase())) {
-      cleanedSuggestion = cleanedSuggestion.slice(lastWord.length).trim();
-    }
-    
-    // Only show if suggestion adds meaningful content
-    if (cleanedSuggestion.length > 1) {
-      document.body.appendChild(ghostElement);
-    }
+    ghostText = {
+      element: ghostElement,
+      suggestion: cleanedSuggestion
+    };
+
+    document.body.appendChild(ghostElement);
   }
 }
 
@@ -280,7 +286,7 @@ async function getSuggestion(text) {
     chrome.runtime.sendMessage({ 
       action: 'getSuggestion', 
       text, 
-      url: isGoogleDocsDocument() ? 'Google Docs' : window.location.href 
+      url:  window.location.href 
     }, (response) => {
       if (chrome.runtime.lastError) {
         reject(new Error(chrome.runtime.lastError.message));
@@ -304,13 +310,50 @@ function debounce(func, wait) {
 }
 
 function showLoadingIndicator() {
-  const loader = document.createElement('div');
-  loader.className = 'textpilot-loading';
-  document.body.appendChild(loader);
+  // Remove any existing ghost text first
+  if (ghostText?.element) {
+    ghostText.element.remove();
+    ghostText = null;
+  }
+
+  const skeletonElement = document.createElement('div');
+  skeletonElement.className = 'textpilot-skeleton';
+  
+  // Get current input element position and style
+  const rect = activeElement.getBoundingClientRect();
+  const computedStyle = window.getComputedStyle(activeElement);
+  
+  // Create loading animation bars
+  const bars = Array(3).fill(0).map(() => {
+    const bar = document.createElement('div');
+    bar.className = 'skeleton-bar';
+    return bar;
+  });
+  
+  bars.forEach((bar, i) => {
+    bar.style.width = `${40 + Math.random() * 60}px`; // Random width between 40-100px
+    skeletonElement.appendChild(bar);
+  });
+
+  // Position skeleton at cursor position
+  const cursorPosition = activeElement.selectionStart;
+  const textBeforeCursor = (activeElement.value || activeElement.textContent).substring(0, cursorPosition);
+  const lastLine = textBeforeCursor.split('\n').pop() || '';
+  
+  const context = document.createElement('canvas').getContext('2d');
+  context.font = computedStyle.font;
+  const lastLineWidth = context.measureText(lastLine).width;
+
+  skeletonElement.style.position = 'fixed';
+  skeletonElement.style.top = `${rect.top + parseInt(computedStyle.lineHeight)}px`;
+  skeletonElement.style.left = `${rect.left + lastLineWidth + 4}px`;
+  skeletonElement.style.zIndex = '99999';
+
+  document.body.appendChild(skeletonElement);
 }
 
 function hideLoadingIndicator() {
-  const loader = document.querySelector('.textpilot-loading');
-  if (loader) loader.remove();
+  const skeleton = document.querySelector('.textpilot-skeleton');
+  if (skeleton) skeleton.remove();
 }
 
