@@ -48,7 +48,7 @@ document.getElementById('generate').addEventListener('click', async () => {
   const keywords = document.getElementById('keywords').value;
 
   if (!keywords.trim()) {
-    output.innerHTML = `<div class="error">⚠️ Please enter some keywords</div>`;
+    output.innerHTML = `<div class="error">Please enter some keywords</div>`;
     return;
   }
 
@@ -70,7 +70,7 @@ document.getElementById('generate').addEventListener('click', async () => {
 
     if (response && response.paragraph) {
       output.innerHTML = `
-        <div class="success">✓ Generation successful</div>
+        <div class="success">Generation successful</div>
         <div class="result">${response.paragraph}</div>
       `;
     } else {
@@ -79,7 +79,7 @@ document.getElementById('generate').addEventListener('click', async () => {
   } catch (error) {
     console.error('Generation error:', error);
     output.innerHTML = `
-      <div class="error">⚠️ Error: ${error.message || 'Failed to generate text'}</div>
+      <div class="error">Error: ${error.message || 'Failed to generate text'}</div>
     `;
   } finally {
     button.textContent = 'Generate Paragraph';
@@ -108,10 +108,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
     });
-    status.innerHTML = '🟢 TextPilot Active';
+    status.innerHTML = 'TextPilot Active';
   } catch (error) {
     console.error('Status check error:', error);
-    status.innerHTML = '🔴 API Key Required';
+    status.innerHTML = 'API Key Required';
   }
   
   document.querySelector('.container').appendChild(status);
