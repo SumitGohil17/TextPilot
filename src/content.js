@@ -208,13 +208,53 @@ function showGhostText(element, suggestion, cursorPosition) {
     const lastLineWidth = context.measureText(lastLine).width;
     const currentLineTop = Math.floor(cursorPosition / element.cols) * parseInt(computedStyle.lineHeight);
     
-    ghostElement.style.position = 'absolute';
-    ghostElement.style.top = `${rect.top + currentLineTop}px`;
-    ghostElement.style.left = `${rect.left + lastLineWidth}px`;
+    // Get cursor position coordinates
+    const getCaretCoordinates = () => {
+      const range = document.createRange();
+      const sel = window.getSelection();
+      
+      try {
+        range.setStart(sel.anchorNode, sel.anchorOffset);
+        range.collapse(true);
+        const rect = range.getBoundingClientRect();
+        return {
+          left: rect.left,
+          top: rect.top
+        };
+      } catch (e) {
+        // Fallback for input/textarea elements
+        return {
+          left: rect.left + lastLineWidth,
+          top: rect.top + currentLineTop
+        };
+      }
+    };
+
+    // Get cursor coordinates
+    const caretPos = getCaretCoordinates();
+    
+    // Position ghost text at cursor position
+    ghostElement.style.position = 'fixed';
+    ghostElement.style.top = `${caretPos.top}px`;
+    ghostElement.style.left = `${caretPos.left + 2}px`; // Add 2px margin
     ghostElement.style.font = computedStyle.font;
     ghostElement.style.lineHeight = computedStyle.lineHeight;
+    ghostElement.style.padding = '0 4px';
+    ghostElement.style.zIndex = '99999';
+    ghostElement.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+    ghostElement.style.borderRadius = '3px';
+    ghostElement.style.whiteSpace = 'pre';
+
+    // Clean up the suggestion by removing any part that overlaps with existing text
+    const lastWord = lastLine.trim().split(' ').pop() || '';
+    if (lastWord && cleanedSuggestion.toLowerCase().startsWith(lastWord.toLowerCase())) {
+      cleanedSuggestion = cleanedSuggestion.slice(lastWord.length).trim();
+    }
     
-    document.body.appendChild(ghostElement);
+    // Only show if suggestion adds meaningful content
+    if (cleanedSuggestion.length > 1) {
+      document.body.appendChild(ghostElement);
+    }
   }
 }
 
