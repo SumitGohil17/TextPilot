@@ -1,6 +1,6 @@
-# TextPiolate
+# TextPilot
 
-TextPiolate is a Chrome extension powered by the Gemini API, designed to provide intelligent text suggestions in any textbox, enhancing productivity and streamlining your typing experience. Inspired by GitHub Copilot, TextPiolate integrates seamlessly into your browsing workflow.
+TextPilot is a Chrome extension powered by the Gemini API, designed to provide intelligent text suggestions in any textbox, enhancing productivity and streamlining your typing experience. Inspired by GitHub Copilot, TextPilot integrates seamlessly into your browsing workflow.
 
 ## Features
 
@@ -27,7 +27,7 @@ TextPiolate is a Chrome extension powered by the Gemini API, designed to provide
 ## Usage
 
 1. Open any website with a textbox (e.g., Google, Gmail, or any Text Box).
-2. Start typing, and TextPiolate will provide intelligent suggestions based on your input.
+2. Start typing, and TextPilot will provide intelligent suggestions based on your input.
 3. Click on the suggestion or use the keyboard shortcut to insert the text.
 
 ## Technologies Used
