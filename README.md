@@ -1,5 +1,7 @@
 # TextPilot
 
+https://github.com/user-attachments/assets/8f619648-cd1d-4c02-808a-164c44485831
+
 TextPilot is a Chrome extension powered by the Gemini API, designed to provide intelligent text suggestions in any textbox, enhancing productivity and streamlining your typing experience. Inspired by GitHub Copilot, TextPilot integrates seamlessly into your browsing workflow.
 
 ## Features
